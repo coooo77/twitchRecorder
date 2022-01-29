@@ -32,5 +32,9 @@
     "electron",
     "vue3",
     "rollup"
-  ]
+  ],
+  "dependencies": {
+    "axios": "^0.25.0",
+    "keytar": "^7.7.0"
+  }
 }
