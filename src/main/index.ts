@@ -1,70 +1,28 @@
-import os from 'os'
-import path from 'path'
-import { app, BrowserWindow } from 'electron'
+import { app } from 'electron'
+import AppProcess from './appProcess'
+import AuthProcess from './authProcess'
+import AuthService from './authService'
 
-// https://stackoverflow.com/questions/42524606/how-to-get-windows-version-using-node-js
-const isWin7 = os.release().startsWith('6.1')
-if (isWin7) app.disableHardwareAcceleration()
+const appProcess = new AppProcess()
 
-if (!app.requestSingleInstanceLock()) {
-  app.quit()
-  process.exit(0)
-}
+const authService = new AuthService()
 
-let win: BrowserWindow | null = null
+const authProcess = new AuthProcess(authService, appProcess)
 
-async function createWindow() {
-  win = new BrowserWindow({
-    webPreferences: {
-      preload: path.join(__dirname, '../preload/index.cjs'),
-    },
-  })
+// This method will be called when Electron has finished
+// initialization and is ready to create browser windows.
+// Some APIs can only be used after this event occurs.
+app.on('ready', async () => {
+  try {
+    await authService.refreshTokens()
 
-  if (app.isPackaged) {
-    win.loadFile(path.join(__dirname, '../renderer/index.html'))
-  } else {
-    const pkg = await import('../../package.json')
-    const url = `http://${pkg.env.HOST || '127.0.0.1'}:${pkg.env.PORT}`
-
-    win.loadURL(url)
-    win.webContents.openDevTools()
+    appProcess.initiation()
+  } catch (error) {
+    authProcess.createAuthWindow()
   }
-}
+})
 
-app.whenReady().then(createWindow)
-
+// Quit when all windows are closed.
 app.on('window-all-closed', () => {
-  win = null
-  if (process.platform !== 'darwin') {
-    app.quit()
-  }
+  app.quit();
 })
-
-app.on('second-instance', () => {
-  if (win) {
-    // someone tried to run a second instance, we should focus our window.
-    if (win.isMinimized()) win.restore()
-    win.focus()
-  }
-})
-
-app.on('activate', () => {
-  const allWindows = BrowserWindow.getAllWindows()
-  if (allWindows.length) {
-    allWindows[0].focus()
-  } else {
-    createWindow()
-  }
-})
-
-// @TODO
-// auto update
-/* if (app.isPackaged) {
-  app.whenReady()
-    .then(() => import('electron-updater'))
-    .then(({ autoUpdater }) => autoUpdater.checkForUpdatesAndNotify())
-    .catch((e) =>
-      // maybe you need to record some log files.
-      console.error('Failed check update:', e)
-    )
-} */
