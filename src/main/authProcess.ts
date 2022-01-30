@@ -34,7 +34,7 @@ export default class AuthProcess {
 
     webRequest.onBeforeRequest(filter, this.handleRequest.bind(this))
 
-    this.authWindow.on('closed', () => this.authWindow = null)
+    this.authWindow.once('closed', () => this.authWindow = null)
   }
 
   private async handleRequest(param: { url: string }) {

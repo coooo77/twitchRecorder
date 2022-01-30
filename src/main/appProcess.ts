@@ -80,4 +80,12 @@ export default class AppProcess {
         )
     } */
   }
+
+  public destroyAppWin() {
+    if (!this.appWindow) return
+
+    this.appWindow.close()
+
+    this.appWindow = null
+  }
 }
