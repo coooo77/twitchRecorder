@@ -7,6 +7,8 @@ import pkg from '../package.json'
 import Components from "unplugin-vue-components/vite";
 import { AntDesignVueResolver } from "unplugin-vue-components/resolvers";
 import WindiCSS from 'vite-plugin-windicss'
+import Icons from 'unplugin-icons/vite'
+import IconsResolver from 'unplugin-icons/resolver'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -14,9 +16,13 @@ export default defineConfig({
   root: join(__dirname, '../src/renderer'),
   plugins: [
     vue(),
+    Icons(),
     WindiCSS(),
     Components({
-      resolvers: [AntDesignVueResolver()]
+      resolvers: [
+        IconsResolver(),
+        AntDesignVueResolver(),
+      ]
     }),
     resolveElectron(
       /**
