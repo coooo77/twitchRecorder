@@ -2,9 +2,11 @@
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
 import HelloWorld from './components/HelloWorld.vue'
+import Menu from './components/layout/Menu.vue';
 </script>
 
 <template>
+  <Menu />
   <router-view />
   <div class="logo-box">
     <img style="height:140px;" src="./assets/electron.png" alt="Electron logo" />
