@@ -1,6 +1,7 @@
+import fs from 'fs'
 import os from 'os'
 import path from 'path'
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, session } from 'electron'
 
 export default class AppProcess {
   appWindow: BrowserWindow | null = null
@@ -27,6 +28,8 @@ export default class AppProcess {
     if (app.isPackaged) {
       this.appWindow.loadFile(path.join(__dirname, '../renderer/index.html'))
     } else {
+      await this.loadDevTools()
+
       const pkg = await import('../../package.json')
 
       const url = `http://${pkg.env.HOST || '127.0.0.1'}:${pkg.env.PORT}`
@@ -87,5 +90,16 @@ export default class AppProcess {
     this.appWindow.close()
 
     this.appWindow = null
+  }
+
+  private async loadDevTools() {
+    const devToolsPath = path.join(
+      os.homedir(),
+      '/AppData/Local/Google/Chrome/User Data/Default/Extensions/ljjemllljcmogpfapbkkighbhhppjdbg/6.0.0.21_0'
+    )
+
+    if (fs.existsSync(devToolsPath)) {
+      await session.defaultSession.loadExtension(devToolsPath)
+    }
   }
 }
