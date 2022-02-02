@@ -1,7 +1,7 @@
 import { ipcMain } from "electron";
 import AppProcess from "./appProcess";
 import AuthProcess from "./authProcess";
-import AuthService from "./authService";
+import AuthService from "./util/authService";
 
 export default class Communicate {
   appProcess: AppProcess
@@ -37,7 +37,7 @@ export default class Communicate {
 
       this.authProcess.createAuthWindow()
 
-      await this.authService.logout()
+      await AuthService.logout()
     })
   }
 }

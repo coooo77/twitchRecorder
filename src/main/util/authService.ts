@@ -4,25 +4,15 @@ import { session } from 'electron'
 import axios, { AxiosRequestConfig } from 'axios'
 
 export default class AuthService {
-  public accessToken = ''
+  private static state = Math.random().toString(36).substring(2, 15)
 
-  public refreshToken = ''
+  private static readonly keytarAccount = os.userInfo().username
 
-  private state = ''
+  private static readonly accessService = 'accessToken'
 
-  private readonly keytarAccount = os.userInfo().username
+  private static readonly refreshService = 'refreshToken'
 
-  private readonly accessService = 'accessToken'
-
-  private readonly refreshService = 'refreshToken'
-
-  private getState() {
-    this.state = Math.random().toString(36).substring(2, 15)
-
-    return this.state
-  }
-
-  public authenticationURL() {
+  public static authenticationURL() {
     return `${import.meta.env.VITE_BASE_URL}/authorize?` +
       `redirect_uri=${import.meta.env.VITE_REDIRECT_URL}` +
       '&' +
@@ -34,11 +24,11 @@ export default class AuthService {
       '&' +
       'force_verify=true' +
       '&' +
-      `state=${this.getState()}`
+      `state=${AuthService.state}`
   }
 
-  public async refreshTokens() {
-    const refreshToken = await keytar.getPassword(this.refreshService, this.keytarAccount);
+  public static async refreshTokens() {
+    const refreshToken = await keytar.getPassword(AuthService.refreshService, AuthService.keytarAccount);
 
     // TODO: ERROR LOG
     if (!refreshToken) throw new Error('No available refresh token.')
@@ -61,21 +51,21 @@ export default class AuthService {
       const { access_token, refresh_token } = response.data
 
       await Promise.allSettled([
-        this.setToken(access_token, 'accessToken'),
-        this.setToken(refresh_token, 'refreshToken')
+        AuthService.setToken(access_token, 'accessToken'),
+        AuthService.setToken(refresh_token, 'refreshToken')
       ])
     } catch (error) {
-      await this.logout()
+      await AuthService.logout()
 
       // TODO: ERROR LOG
       throw error
     }
   }
 
-  public async loadTokens(callbackURL: string) {
+  public static async loadTokens(callbackURL: string) {
     const params = new URL(callbackURL)
 
-    if (this.state !== params.searchParams.get('state')) {
+    if (AuthService.state !== params.searchParams.get('state')) {
       // TODO: ERROR LOG
       throw new Error(`Invalid state in callbackURL`)
     }
@@ -101,44 +91,30 @@ export default class AuthService {
       const { access_token, refresh_token } = response.data
 
       await Promise.allSettled([
-        this.setToken(access_token, 'accessToken'),
-        this.setToken(refresh_token, 'refreshToken')
+        AuthService.setToken(access_token, 'accessToken'),
+        AuthService.setToken(refresh_token, 'refreshToken')
       ])
     } catch (error) {
-      await this.logout()
+      await AuthService.logout()
 
       // TODO: ERROR LOG
       throw error
     }
   }
 
-  private async setToken(token: string, type: 'refreshToken' | 'accessToken') {
+  private static async setToken(token: string, type: 'refreshToken' | 'accessToken') {
     if (!token) return
 
-    await keytar.setPassword(type, this.keytarAccount, token);
-
-    switch (type) {
-      case 'refreshToken':
-        this.refreshToken = token
-        break;
-
-      case 'accessToken':
-        this.accessToken = token
-        break;
-    }
+    await keytar.setPassword(type, AuthService.keytarAccount, token);
   }
 
-  public async logout() {
-    // await this.clearCookie()
+  public static async logout() {
+    // await AuthService.clearCookie()
 
     await Promise.allSettled([
-      keytar.deletePassword(this.accessService, this.keytarAccount),
-      keytar.deletePassword(this.refreshService, this.keytarAccount),
+      keytar.deletePassword(AuthService.accessService, AuthService.keytarAccount),
+      keytar.deletePassword(AuthService.refreshService, AuthService.keytarAccount),
     ])
-
-    this.accessToken = ''
-
-    this.refreshToken = ''
   }
 
   public static async clearCookie() {

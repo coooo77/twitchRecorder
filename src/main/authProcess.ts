@@ -1,5 +1,5 @@
 import AppProcess from "./appProcess";
-import AuthService from "./authService";
+import AuthService from "./util/authService";
 import { BrowserWindow, WebRequestFilter } from 'electron'
 
 export default class AuthProcess {
@@ -19,14 +19,14 @@ export default class AuthProcess {
     this.destroyAuthWin()
 
     this.authWindow = new BrowserWindow({
-      width: 1000,
-      height: 600,
+      width: 1440,
+      height: 900,
       webPreferences: {
         nodeIntegration: false
       }
     })
 
-    this.authWindow.loadURL(this.authService.authenticationURL())
+    this.authWindow.loadURL(AuthService.authenticationURL())
 
     const { session: { webRequest } } = this.authWindow.webContents
 
@@ -38,7 +38,7 @@ export default class AuthProcess {
   }
 
   private async handleRequest(param: { url: string }) {
-    await this.authService.loadTokens(param.url)
+    await AuthService.loadTokens(param.url)
 
     this.appProcess.initiation()
 
@@ -61,7 +61,7 @@ export default class AuthProcess {
     logoutWindow.on('ready-to-show', async () => {
       logoutWindow.close()
 
-      await this.authService.logout()
+      await AuthService.logout()
     })
   }
 }

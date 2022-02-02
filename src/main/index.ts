@@ -1,7 +1,7 @@
 import { app } from 'electron'
 import AppProcess from './appProcess'
 import AuthProcess from './authProcess'
-import AuthService from './authService'
+import AuthService from './util/authService'
 import Communicate from './communicate'
 
 const appProcess = new AppProcess()
@@ -19,7 +19,7 @@ communicate.listenerInitiation()
 // Some APIs can only be used after this event occurs.
 app.on('ready', async () => {
   try {
-    await authService.refreshTokens()
+    await AuthService.refreshTokens()
 
     appProcess.initiation()
   } catch (error) {
