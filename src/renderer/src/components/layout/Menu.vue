@@ -1,5 +1,5 @@
 <template>
-  <div class="menu flex flex-col gap-2" border="r-gray-200 r-1">
+  <div class="menu flex flex-col gap-2 relative" border="r-gray-200 r-1" h="full">
     <el-button
       size="large"
       :type="isCollapse ? 'primary' : 'info'"
@@ -24,6 +24,12 @@
         <template #title>{{ item.meta?.title }}</template>
       </el-menu-item>
     </el-menu>
+
+    <el-button @click="logout" size="large" class="absolute bottom-0" w="full">
+      <el-icon color="primary" :size="24">
+        <Icon m="auto" icon="ls:logout" />
+      </el-icon>
+    </el-button>
   </div>
 </template>
 
@@ -34,6 +40,8 @@ import routesForMenu from '../../router/routes'
 import { Expand } from '@element-plus/icons-vue'
 
 const isCollapse = ref(true)
+
+const logout = () => window.ipcRenderer.send('logout')
 </script>
 
 <style>
