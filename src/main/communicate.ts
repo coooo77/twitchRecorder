@@ -23,11 +23,15 @@ export default class Communicate {
   }
 
   public listenerInitiation() {
+    this.refreshTokens()
+
     this.logoutHandler()
+
+    this.getAccessToken()
   }
 
   /** 
-   * this.authService.logout() delay and this.authProcess.createAuthWindow() fail to work 
+   * logout() delay and createAuthWindow() fail to work 
    * 
    * logout must be after createAuthWindow
    * */
@@ -39,5 +43,13 @@ export default class Communicate {
 
       await AuthService.logout()
     })
+  }
+
+  private refreshTokens() {
+    ipcMain.handle('refreshTokens', async () => await AuthService.refreshTokens())
+  }
+
+  private getAccessToken() {
+    ipcMain.handle('getAccessToken', () => AuthService.accessToken)
   }
 }

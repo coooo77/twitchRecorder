@@ -12,6 +12,8 @@ export default class AuthService {
 
   private static readonly refreshService = 'refreshToken'
 
+  public static accessToken = '' 
+
   public static authenticationURL() {
     return `${import.meta.env.VITE_BASE_URL}/authorize?` +
       `redirect_uri=${import.meta.env.VITE_REDIRECT_URL}` +
@@ -54,6 +56,8 @@ export default class AuthService {
         AuthService.setToken(access_token, 'accessToken'),
         AuthService.setToken(refresh_token, 'refreshToken')
       ])
+
+      AuthService.accessToken = access_token
     } catch (error) {
       await AuthService.logout()
 
@@ -115,6 +119,8 @@ export default class AuthService {
       keytar.deletePassword(AuthService.accessService, AuthService.keytarAccount),
       keytar.deletePassword(AuthService.refreshService, AuthService.keytarAccount),
     ])
+
+    AuthService.accessToken = ''
   }
 
   public static async clearCookie() {
