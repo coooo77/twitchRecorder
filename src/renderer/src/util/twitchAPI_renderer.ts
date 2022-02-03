@@ -13,15 +13,11 @@ async function apiWrapper<T = any>(
 
     return response
   } catch (error) {
-    const err = error as AxiosError
-
-    if (err.response?.status === 401) {
+    if ((error as AxiosError).response?.status === 401) {
       await window.ipcRenderer.invoke('refreshTokens')
 
       return await mainFn(...arg)
     }
-
-    return err
   }
 }
 
