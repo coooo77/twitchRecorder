@@ -14,6 +14,10 @@ export default class AuthService {
 
   public static accessToken = '' 
 
+  public static userName = ''
+
+  public static userID = ''
+
   public static authenticationURL() {
     return `${import.meta.env.VITE_BASE_URL}/authorize?` +
       `redirect_uri=${import.meta.env.VITE_REDIRECT_URL}` +
@@ -98,6 +102,8 @@ export default class AuthService {
         AuthService.setToken(access_token, 'accessToken'),
         AuthService.setToken(refresh_token, 'refreshToken')
       ])
+
+      AuthService.accessToken = access_token
     } catch (error) {
       await AuthService.logout()
 
@@ -121,6 +127,10 @@ export default class AuthService {
     ])
 
     AuthService.accessToken = ''
+
+    AuthService.userID = ''
+
+    AuthService.userName = ''
   }
 
   public static async clearCookie() {
@@ -144,5 +154,19 @@ export default class AuthService {
       // TODO: ERROR LOG
       console.error(`Clear cookie error: ${error}`)
     }
+  }
+
+  public static async getUserInfo() {
+    if (!AuthService.accessToken) throw new Error('No access token for user information')
+
+    const res = await axios({
+      method: 'GET',
+      url: 'https://id.twitch.tv/oauth2/userinfo',
+      headers: { Authorization: `Bearer ${AuthService.accessToken}` }
+    })
+
+    AuthService.userID = res.data.sub
+
+    AuthService.userName = res.data.preferred_username
   }
 }

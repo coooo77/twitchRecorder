@@ -40,6 +40,8 @@ export default class AuthProcess {
   private async handleRequest(param: { url: string }) {
     await AuthService.loadTokens(param.url)
 
+    await AuthService.getUserInfo()
+
     this.appProcess.initiation()
 
     return this.destroyAuthWin()

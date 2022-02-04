@@ -21,6 +21,8 @@ app.on('ready', async () => {
   try {
     await AuthService.refreshTokens()
 
+    await AuthService.getUserInfo()
+
     appProcess.initiation()
   } catch (error) {
     authProcess.createAuthWindow()

@@ -1,10 +1,10 @@
 import { ipcMain } from "electron";
 import AppProcess from "./appProcess";
 import AuthProcess from "./authProcess";
+import UserSystem from "./util/userSystem";
 import AuthService from "./util/authService";
 import ModelSystem from "./util/modelSystem";
 import { IGetUsersResponse } from "./types/record";
-import UserSystem from "./util/userSystem";
 
 export default class Communicate {
   appProcess: AppProcess
