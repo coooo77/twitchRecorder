@@ -5,7 +5,15 @@ export default class FileSystem {
   public static errorLogPath = path.join(__dirname, '../log')
 
   public static makeDirIfNotExist(fileLocation: string) {
-    if (!fs.existsSync(fileLocation)) fs.mkdirSync(fileLocation)
+    const dirNames = fileLocation.split(path.sep)
+
+    let dirPath = ''
+
+    for (let dirName of dirNames) {
+      dirPath += dirName + path.sep
+
+      if (!fs.existsSync(dirPath)) fs.mkdirSync(dirPath)
+    }
   }
 
   public static isDirExist(fileLocation: string) {
@@ -29,7 +37,6 @@ export default class FileSystem {
   */
   public static saveFile(fileLocation: string, fileName: string, data: any) {
     try {
-      console.log('fileLocation', fileLocation)
       FileSystem.makeDirIfNotExist(fileLocation)
 
       fs.writeFileSync(`${fileLocation}/${fileName}.json`, JSON.stringify(data), 'utf8')
@@ -48,7 +55,7 @@ export default class FileSystem {
     }
   }
 
-  public static getOrCreateFile(fileLocation: string, fileName: string, defaultData: any) {
+  public static getOrCreateFile<T>(fileLocation: string, fileName: string, defaultData: T):T {
     if (fs.existsSync(`${fileLocation}/${fileName}.json`)) {
       return FileSystem.getFile(fileLocation, fileName)
     }

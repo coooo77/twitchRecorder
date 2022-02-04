@@ -1,9 +1,14 @@
 import path from 'path'
-import { ITargetUser, ITargetUsers } from '../types/user'
+import { ITargetUsers } from '../types/user'
+import AuthService from './authService'
 import FilesSystem from "./fileSystem"
 
 export default class ModelSystem {
-  private static modelPath = path.join(__dirname, '../model')
+  private static targetUsersName = 'targetUsers'
+
+  private static modelPath() {
+    return path.join(__dirname, '../model/', AuthService.userID)
+  }
 
   public static defaultTargetUsers: ITargetUsers = {
     _comment: "record setting for streamers",
@@ -11,10 +16,12 @@ export default class ModelSystem {
   }
 
   public static get targetUsers() {
-    return FilesSystem.getOrCreateFile(ModelSystem.modelPath, 'targetUsers', ModelSystem.defaultTargetUsers)
+    return FilesSystem.getOrCreateFile(
+      ModelSystem.modelPath(), ModelSystem.targetUsersName, ModelSystem.defaultTargetUsers
+    )
   }
 
   public static set targetUsers(users: ITargetUsers) {
-    FilesSystem.saveFile(ModelSystem.modelPath, 'targetUsers', users)
+    FilesSystem.saveFile(ModelSystem.modelPath(), ModelSystem.targetUsersName, users)
   }
 }
