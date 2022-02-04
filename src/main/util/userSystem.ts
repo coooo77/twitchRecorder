@@ -20,7 +20,7 @@ export default class UserSystem {
         timeZone: '03:00:00',
         getStreamIfNoVod: true,
         isStopRecordStream: true,
-        countDownInMinutes: 60 * 1000
+        countDownInMinutes: 60
       },
       recordType: ['stream', 'vod'],
       checkStreamContentType: {
@@ -30,7 +30,7 @@ export default class UserSystem {
       fileNameTemplate: '{channel}_TwitchLive_{date}_{duration}'
     }
   }
-  
+
   /** @returns {boolean} is add user successfully */
   public static addUser(users: IGetUsersResponse[]) {
     try {
@@ -52,6 +52,7 @@ export default class UserSystem {
 
         return acc
       }, {} as { [key: string]: ITargetUser })
+
 
       targetUsers.targets = Object.assign(targetUsers.targets, newUsers)
 

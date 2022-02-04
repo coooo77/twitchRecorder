@@ -7,6 +7,7 @@ export interface ITargetUser {
   profileImg: string
   offlineImg: string
   status: IUserStatus
+  lastStreamTime?: string
   recordSetting: IRecordSetting
 }
 
