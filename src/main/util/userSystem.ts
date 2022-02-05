@@ -15,9 +15,10 @@ export default class UserSystem {
     },
     recordSetting: {
       enableRecord: true,
+      enableNotify: true,
       vod: {
         mode: 'countDown',
-        timeZone: '03:00:00',
+        timeZone: [3, 0, 0],
         getStreamIfNoVod: true,
         isStopRecordStream: true,
         countDownInMinutes: 60

@@ -1,6 +1,6 @@
 <template>
-  <div class="onlineFollow">
-    <header>
+  <div class="onlineFollow overflow-y-auto">
+    <header m="b-8" display="flex items-center">
       <el-input
         :disabled="isProcessing"
         v-model="input"
@@ -13,6 +13,11 @@
         </template>
       </el-input>
     </header>
+
+    <!-- Table Data -->
+    <follow-list v-if="tableData.length !== 0" :tableData="tableData" />
+
+    <el-empty v-else w="full" h="full" description="No Data"></el-empty>
   </div>
 </template>
 
@@ -20,7 +25,20 @@
 import { ElNotification } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
 import { getUsers, GetUsersResponse, TwitchGetUsersParams } from '../util/twitchAPI_renderer';
+import { ITargetUser, ITargetUsers } from '../types/user';
 
+// Read table data
+const tableData = ref<ITargetUser[]>([])
+
+const fetchTargets = async () => {
+  const recordTargets = await window.ipcRenderer.invoke('getTargetUsers') as ITargetUsers
+
+  tableData.value = Object.values(recordTargets.targets)
+}
+
+onMounted(fetchTargets)
+
+// Add table data
 const isProcessing = ref(false)
 
 const input = ref('')
@@ -63,6 +81,8 @@ const addUsers = async () => {
 
     input.value = ''
 
+    await fetchTargets()
+
     ElNotification({
       type: result ? 'success' : 'error',
       title: result ? 'Success' : 'Fail',
@@ -81,3 +101,9 @@ const addUsers = async () => {
   }
 }
 </script>
+
+<style>
+.onlineFollow {
+  font-family: "Poppins", sans-serif;
+}
+</style>
