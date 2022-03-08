@@ -25,7 +25,7 @@
 import { ElNotification } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
 import { getUsers, GetUsersResponse, TwitchGetUsersParams } from '../util/twitchAPI_renderer';
-import { ITargetUser, ITargetUsers } from '../types/user';
+import { ITargetUser, ITargetUsers } from '../../../main/types/user'
 
 // Read table data
 const tableData = ref<ITargetUser[]>([])

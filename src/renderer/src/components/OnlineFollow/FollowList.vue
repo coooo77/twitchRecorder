@@ -65,7 +65,7 @@
 
 <script setup lang="ts">
 import { PropType } from 'vue';
-import { ITargetUser } from '../../types/user';
+import { ITargetUser } from '../../../../main/types/user';
 
 defineProps({
   tableData: {
