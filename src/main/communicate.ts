@@ -1,10 +1,11 @@
-import { ipcMain } from "electron";
-import AppProcess from "./appProcess";
-import AuthProcess from "./authProcess";
-import UserSystem from "./util/userSystem";
-import AuthService from "./util/authService";
-import ModelSystem from "./util/modelSystem";
-import { IGetUsersResponse } from "./types/record";
+import { ipcMain } from 'electron'
+import AppProcess from './appProcess'
+import AuthProcess from './authProcess'
+import { ITargetUser } from './types/user'
+import AuthService from './util/authService'
+import ModelSystem from './util/modelSystem'
+import { IGetUsersResponse } from './types/record'
+import UserSystem, { TInvalidEditKeyName } from './util/userSystem'
 
 export default class Communicate {
   appProcess: AppProcess
@@ -35,11 +36,13 @@ export default class Communicate {
     this.getTargetUsers()
 
     this.addTargetUsers()
+
+    this.editTargetUsers()
   }
 
-  /** 
-   * logout() delay and createAuthWindow() fail to work 
-   * 
+  /**
+   * logout() delay and createAuthWindow() fail to work
+   *
    * logout must be after createAuthWindow
    * */
   private logoutHandler() {
@@ -53,7 +56,10 @@ export default class Communicate {
   }
 
   private refreshTokens() {
-    ipcMain.handle('refreshTokens', async () => await AuthService.refreshTokens())
+    ipcMain.handle(
+      'refreshTokens',
+      async () => await AuthService.refreshTokens()
+    )
   }
 
   private getAccessToken() {
@@ -65,6 +71,16 @@ export default class Communicate {
   }
 
   private addTargetUsers() {
-    ipcMain.handle('addTargetUsers', (event, args: { data: IGetUsersResponse[] }) => UserSystem.addUser(args.data))
+    ipcMain.handle(
+      'addTargetUsers',
+      (event, args: { data: IGetUsersResponse[] }) =>
+        UserSystem.addUser(args.data)
+    )
+  }
+
+  private editTargetUsers() {
+    ipcMain.handle('editTargetUsers', async (event, args: ITargetUser[]) =>
+      UserSystem.editUsers(args)
+    )
   }
 }
