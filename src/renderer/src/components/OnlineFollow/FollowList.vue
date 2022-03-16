@@ -1,8 +1,12 @@
 <template>
-  <el-table @selection-change="handleSelectionChange" :data="tableData" style="width: 100%">
+  <el-table
+    @selection-change="handleSelectionChange"
+    :data="tableData"
+    style="width: 100%"
+  >
     <el-table-column type="selection" width="55" />
 
-    <el-table-column label="Name" prop="displayName">
+    <el-table-column fixed label="Name" prop="displayName">
       <template #default="{ row }">
         <div class="userName">
           <div>{{ `${row.displayName}` }}</div>
@@ -31,17 +35,17 @@
 
     <el-table-column label="Stream">
       <template #default="scope">
-        <el-tag
-          :type="scope.row.status.isOnline ? 'danger' : 'info'"
-        >{{ scope.row.status.isOnline ? 'Online' : 'Offline' }}</el-tag>
+        <el-tag :type="scope.row.status.isOnline ? 'danger' : 'info'">
+          {{ scope.row.status.isOnline ? 'Online' : 'Offline' }}
+        </el-tag>
       </template>
     </el-table-column>
 
     <el-table-column label="Record">
       <template #default="scope">
-        <el-tag
-          :type="scope.row.status.isRecording ? 'danger' : 'info'"
-        >{{ scope.row.status.isRecording ? 'ON' : 'OFF' }}</el-tag>
+        <el-tag :type="scope.row.status.isRecording ? 'danger' : 'info'">
+          {{ scope.row.status.isRecording ? 'ON' : 'OFF' }}
+        </el-tag>
       </template>
     </el-table-column>
 
@@ -51,43 +55,46 @@
           type="primary"
           size="small"
           @click="$emit('openDialog', scope.$index, scope.row)"
-        >EDIT</el-button>
+        >
+          EDIT
+        </el-button>
 
         <el-button
           type="danger"
           size="small"
           @click="$emit('openDialog', scope.$index, scope.row)"
-        >DELETE</el-button>
+        >
+          DELETE
+        </el-button>
       </template>
     </el-table-column>
   </el-table>
 </template>
 
 <script setup lang="ts">
-import { PropType } from 'vue';
-import { ITargetUser } from '../../../../main/types/user';
+import { PropType } from 'vue'
+import { ITargetUser } from '../../../../main/types/user'
 
 defineProps({
   tableData: {
     type: Object as PropType<ITargetUser[]>,
     required: true,
-    default: () => ([])
-  }
+    default: () => [],
+  },
 })
 
 const emit = defineEmits<{
-  (eventName: 'enableMultiEdit', isEnableMultiEdit: boolean): void
+  (
+    eventName: 'enableMultiEdit',
+    value: { isEnableMultiEdit: boolean; usersSelected: ITargetUser[] }
+  ): void
   (eventName: 'openDialog', index: number, row: ITargetUser): void
   (eventName: 'editUser', row: ITargetUser, type: 'record' | 'notify'): void
 }>()
 
-const multipleSelection = ref<ITargetUser[]>([])
-
 const handleSelectionChange = (val: ITargetUser[]) => {
-  multipleSelection.value = val
-
   const isEnableMultiEdit = val.length > 1
 
-  emit('enableMultiEdit', isEnableMultiEdit)
+  emit('enableMultiEdit', { isEnableMultiEdit, usersSelected: val })
 }
 </script>

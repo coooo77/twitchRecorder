@@ -5,7 +5,7 @@
         <el-button
           :disabled="!isMultiEdit"
           type="primary"
-          @click="handleMultiEdit"
+          @click="multiEditDialogVisible = true"
           >EDIT</el-button
         >
 
@@ -39,7 +39,6 @@
     />
 
     <el-empty v-else w="full" h="full" description="No Data"></el-empty>
-    <!-- <multi-edit-dialog v-model:dialogVisible="multiEditDialogVisible" /> -->
 
     <edit-dialog
       v-model:dialogVisible="editDialogVisible"
@@ -51,106 +50,102 @@
     <multi-edit-dialog
       @update:modelValue="multiEditDialogVisible = $event"
       v-model:dialogVisible="multiEditDialogVisible"
+      @update="handleMultiEdit"
     />
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ElNotification } from "element-plus";
-import { Plus } from "@element-plus/icons-vue";
-import { ITargetUser, ITargetUsers } from "../../../main/types/user";
-import MultiEditDialog from "../components/OnlineFollow/MultiEditDialog.vue";
+import Notify from '../util/notify'
+import { Plus } from '@element-plus/icons-vue'
+import { ITargetUser, ITargetUsers } from '../../../main/types/user'
+import MultiEditDialog from '../components/OnlineFollow/MultiEditDialog.vue'
 import {
   getUsers,
   GetUsersResponse,
   TwitchGetUsersParams,
-} from "../util/twitchAPI_renderer";
+} from '../util/twitchAPI_renderer'
+import { SettingToUpdate } from '../components/OnlineFollow/MultiEditDialog'
 
-const updateList = ref<string[]>([]);
+const usersToUpdate = ref<ITargetUser[]>([])
 
 /** Read table data */
-const tableData = ref<ITargetUser[]>([]);
+const tableData = ref<ITargetUser[]>([])
 
 /** Add table data */
-const isProcessing = ref(false);
+const isProcessing = ref(false)
 
-const input = ref("");
+const input = ref('')
 
-const editDialogVisible = ref(false);
+const editDialogVisible = ref(false)
 
-const multiEditDialogVisible = ref(false);
+const multiEditDialogVisible = ref(false)
 
-const dialogData = ref<ITargetUser | undefined>();
+const dialogData = ref<ITargetUser | undefined>()
 
-const isMultiEdit = ref(false);
+const isMultiEdit = ref(false)
 
 const fetchTargets = async () => {
   const recordTargets = (await window.ipcRenderer.invoke(
-    "getTargetUsers"
-  )) as ITargetUsers;
+    'getTargetUsers'
+  )) as ITargetUsers
 
-  tableData.value = Object.values(recordTargets.targets);
-};
+  tableData.value = Object.values(recordTargets.targets)
+}
 
 const fetchUsers = async (): Promise<GetUsersResponse[]> => {
-  const usersList = Array.from(new Set(input.value.trim().split(";")));
+  const usersList = Array.from(new Set(input.value.trim().split(';')))
 
-  if (usersList.length === 0) return [];
+  if (usersList.length === 0) return []
 
-  const id: string[] = [];
+  const id: string[] = []
 
-  const login: string[] = [];
+  const login: string[] = []
 
-  const isNumber = new RegExp("^[0-9]+$");
+  const isNumber = new RegExp('^[0-9]+$')
 
   for (let user of usersList) {
-    if (isNumber.test(user)) id.push(user);
-    else login.push(user);
+    if (isNumber.test(user)) id.push(user)
+    else login.push(user)
   }
 
-  const params: TwitchGetUsersParams = { id, login };
+  const params: TwitchGetUsersParams = { id, login }
 
-  if (id.length === 0) delete params.id;
+  if (id.length === 0) delete params.id
 
-  if (login.length === 0) delete params.login;
+  if (login.length === 0) delete params.login
 
-  const response = await getUsers(params);
+  const response = await getUsers(params)
 
-  return response?.data || [];
-};
+  return response?.data || []
+}
 
 const addUsers = async () => {
-  isProcessing.value = true;
+  isProcessing.value = true
 
   try {
-    const users = await fetchUsers();
+    const users = await fetchUsers()
 
     const result = (await window.ipcRenderer.invoke(
-      "addTargetUsers",
+      'addTargetUsers',
       users
-    )) as boolean;
+    )) as boolean
 
-    input.value = "";
+    input.value = ''
 
-    await fetchTargets();
+    await fetchTargets()
 
-    ElNotification({
-      type: result ? "success" : "error",
-      title: result ? "Success" : "Fail",
-      message: result ? "Add users successfully" : "Fail to add users",
-    });
+    const message = result ? 'Add users successfully' : 'Fail to add users'
+
+    Notify.send(message, result)
   } catch (error) {
-    console.error(error);
+    console.error(error)
 
-    ElNotification({
-      type: "error",
-      title: "Fail",
-      message: "Error occur.",
-    });
+    Notify.warn('Error occur')
   } finally {
-    isProcessing.value = false;
+    isProcessing.value = false
   }
-};
+}
 
 // Search Data
 
@@ -161,22 +156,35 @@ const addUsers = async () => {
 
 // Edit Data
 const handleOpenDialog = (index: number, row: ITargetUser) => {
-  dialogData.value = JSON.parse(JSON.stringify(row));
+  dialogData.value = JSON.parse(JSON.stringify(row))
 
-  editDialogVisible.value = true;
-};
+  editDialogVisible.value = true
+}
 
-const handleMultiEditStatus = (isEnableMultiEdit: boolean) => {
-  isMultiEdit.value = isEnableMultiEdit;
-};
+const handleMultiEditStatus = (payload: {
+  isEnableMultiEdit: boolean
+  usersSelected: ITargetUser[]
+}) => {
+  isMultiEdit.value = payload.isEnableMultiEdit
 
-const handleMultiEdit = () => {
-  multiEditDialogVisible.value = true;
-};
+  usersToUpdate.value = payload.usersSelected
+}
+
+const handleMultiEdit = async (payload: SettingToUpdate) => {
+  if (usersToUpdate.value.length === 0) return
+
+  const updateData = usersToUpdate.value.map((user) => {
+    user.recordSetting = Object.assign(user.recordSetting, payload)
+
+    return JSON.parse(JSON.stringify(user)) as ITargetUser
+  })
+
+  await editUsers(updateData)
+}
 
 const handleMultiDelete = () => {
-  console.log("handleMultiDelete");
-};
+  console.log('handleMultiDelete')
+}
 
 /**
  * must send pure js object or get error
@@ -184,33 +192,40 @@ const handleMultiDelete = () => {
  * */
 const handleEditData = async (value: ITargetUser) => {
   try {
-    const cloneData = JSON.parse(JSON.stringify(value)) as ITargetUser;
+    const cloneData = JSON.parse(JSON.stringify(value)) as ITargetUser
 
-    const result = (await window.ipcRenderer.invoke("editTargetUsers", [
-      cloneData,
-    ])) as boolean;
-
-    ElNotification({
-      type: result ? "success" : "error",
-      title: result ? "Success" : "Fail",
-      message: result ? "Edit users successfully" : "Fail to edit users",
-    });
+    await editUsers([cloneData])
   } catch (error) {
-    console.error(error);
+    console.error(error)
 
-    ElNotification({
-      type: "error",
-      title: "Fail",
-      message: "Error occur.",
-    });
+    Notify.warn('Error occur')
   }
-};
+}
 
-onMounted(fetchTargets);
+const editUsers = async (value: ITargetUser[]) => {
+  try {
+    const result = (await window.ipcRenderer.invoke(
+      'editTargetUsers',
+      value
+    )) as boolean
+
+    const message = result ? 'Edit users successfully' : 'Fail to edit users'
+
+    Notify.send(message, result)
+
+    if (result) await fetchTargets()
+  } catch (error) {
+    console.error(error)
+
+    Notify.warn('Error occur')
+  }
+}
+
+onMounted(fetchTargets)
 </script>
 
 <style>
 .onlineFollow {
-  font-family: "Poppins", sans-serif;
+  font-family: 'Poppins', sans-serif;
 }
 </style>
