@@ -12,7 +12,7 @@
         <el-button
           :disabled="!isMultiEdit"
           type="danger"
-          @click="handleMultiDelete"
+          @click="bulkDeleteUsers"
           >DELETE</el-button
         >
       </div>
@@ -34,11 +34,12 @@
     <follow-list
       v-if="tableData.length !== 0"
       :tableData="tableData"
+      @deleteUser="deleteUsers($event)"
       @openDialog="handleOpenDialog"
       @enableMultiEdit="handleMultiEditStatus"
     />
 
-    <el-empty v-else w="full" h="full" description="No Data"></el-empty>
+    <el-empty v-else w="full" h="full" description="No Data" />
 
     <edit-dialog
       v-model:dialogVisible="editDialogVisible"
@@ -56,16 +57,19 @@
 </template>
 
 <script lang="ts" setup>
-import Notify from '../util/notify'
-import { Plus } from '@element-plus/icons-vue'
-import { ITargetUser, ITargetUsers } from '../../../main/types/user'
-import MultiEditDialog from '../components/OnlineFollow/MultiEditDialog.vue'
 import {
   getUsers,
   GetUsersResponse,
   TwitchGetUsersParams,
 } from '../util/twitchAPI_renderer'
+import Notify from '../util/notify'
+import { Plus } from '@element-plus/icons-vue'
+import { ElMessageBox, ElMessage } from 'element-plus'
+import { ITargetUser, ITargetUsers } from '../../../main/types/user'
+
+// components、interface
 import { SettingToUpdate } from '../components/OnlineFollow/MultiEditDialog'
+import MultiEditDialog from '../components/OnlineFollow/MultiEditDialog.vue'
 
 const usersToUpdate = ref<ITargetUser[]>([])
 
@@ -147,12 +151,7 @@ const addUsers = async () => {
   }
 }
 
-// Search Data
-
-// Delete data
-// const handleDelete = (index: number, row: ITargetUser) => {
-//   console.log(index, row)
-// }
+// TODO:Search Data、Enable Notify、Enable Record
 
 // Edit Data
 const handleOpenDialog = (index: number, row: ITargetUser) => {
@@ -161,6 +160,7 @@ const handleOpenDialog = (index: number, row: ITargetUser) => {
   editDialogVisible.value = true
 }
 
+/** Update users selected */
 const handleMultiEditStatus = (payload: {
   isEnableMultiEdit: boolean
   usersSelected: ITargetUser[]
@@ -180,10 +180,6 @@ const handleMultiEdit = async (payload: SettingToUpdate) => {
   })
 
   await editUsers(updateData)
-}
-
-const handleMultiDelete = () => {
-  console.log('handleMultiDelete')
 }
 
 /**
@@ -217,7 +213,77 @@ const editUsers = async (value: ITargetUser[]) => {
   } catch (error) {
     console.error(error)
 
-    Notify.warn('Error occur')
+    Notify.warn('Error occur when editing users')
+  }
+}
+
+const deleteUsers = async (value: ITargetUser[]) => {
+  try {
+    if (value.length === 0) return false
+
+    const ids = value.map((user) => user.id)
+
+    const result = (await window.ipcRenderer.invoke(
+      'deleteTargetUsers',
+      ids
+    )) as boolean
+
+    const message = result
+      ? 'Delete users successfully'
+      : 'Fail to delete users'
+
+    Notify.send(message, result)
+
+    if (result) await fetchTargets()
+
+    return result
+  } catch (error) {
+    console.error(error)
+
+    Notify.warn('Error occur when deleting users')
+
+    return false
+  }
+}
+
+const bulkDeleteUsers = async () => {
+  const title = 'WARNING'
+
+  const text = 'Data of users will be deleted permanently. Continue?'
+
+  try {
+    await ElMessageBox.confirm(text, title, {
+      confirmButtonText: 'Confirm',
+      cancelButtonText: 'Cancel',
+      type: 'warning',
+    })
+
+    const res = await deleteUsers(usersToUpdate.value)
+
+    if (res) {
+      ElMessage({
+        type: 'success',
+        message: 'Delete completed',
+      })
+
+      const deleteList = usersToUpdate.value.map((user) => user.id)
+
+      tableData.value = tableData.value.filter(
+        (user) => !deleteList.includes(user.id)
+      )
+
+      usersToUpdate.value = []
+    } else {
+      ElMessage({
+        type: 'warning',
+        message: 'Delete failed',
+      })
+    }
+  } catch {
+    ElMessage({
+      type: 'info',
+      message: 'Delete canceled',
+    })
   }
 }
 

@@ -5,7 +5,9 @@ import { ITargetUser } from './types/user'
 import AuthService from './util/authService'
 import ModelSystem from './util/modelSystem'
 import { IGetUsersResponse } from './types/record'
-import UserSystem, { TInvalidEditKeyName } from './util/userSystem'
+import UserSystem from './util/userSystem'
+
+type UserID = string
 
 export default class Communicate {
   appProcess: AppProcess
@@ -38,6 +40,8 @@ export default class Communicate {
     this.addTargetUsers()
 
     this.editTargetUsers()
+
+    this.deleteTargetUsers()
   }
 
   /**
@@ -79,8 +83,16 @@ export default class Communicate {
   }
 
   private editTargetUsers() {
-    ipcMain.handle('editTargetUsers', async (event, args: ITargetUser[]) =>
-      UserSystem.editUsers(args)
+    ipcMain.handle(
+      'editTargetUsers',
+      async (event, args: ITargetUser[]) => await UserSystem.editUsers(args)
+    )
+  }
+
+  private deleteTargetUsers() {
+    ipcMain.handle(
+      'deleteTargetUsers',
+      async (event, args: UserID[]) => await UserSystem.deleteUsers(args)
     )
   }
 }

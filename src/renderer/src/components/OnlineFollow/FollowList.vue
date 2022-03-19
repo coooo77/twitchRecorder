@@ -59,13 +59,14 @@
           EDIT
         </el-button>
 
-        <el-button
-          type="danger"
-          size="small"
-          @click="$emit('openDialog', scope.$index, scope.row)"
+        <el-popconfirm
+          title="Are you sure to delete this?"
+          @confirm="onConfirm($event, scope.row)"
         >
-          DELETE
-        </el-button>
+          <template #reference>
+            <el-button type="danger" size="small"> DELETE </el-button>
+          </template>
+        </el-popconfirm>
       </template>
     </el-table-column>
   </el-table>
@@ -74,6 +75,11 @@
 <script setup lang="ts">
 import { PropType } from 'vue'
 import { ITargetUser } from '../../../../main/types/user'
+
+interface EnableMultiEditValue {
+  isEnableMultiEdit: boolean
+  usersSelected: ITargetUser[]
+}
 
 defineProps({
   tableData: {
@@ -84,11 +90,9 @@ defineProps({
 })
 
 const emit = defineEmits<{
-  (
-    eventName: 'enableMultiEdit',
-    value: { isEnableMultiEdit: boolean; usersSelected: ITargetUser[] }
-  ): void
+  (eventName: 'enableMultiEdit', value: EnableMultiEditValue): void
   (eventName: 'openDialog', index: number, row: ITargetUser): void
+  (eventName: 'deleteUser', row: ITargetUser[]): void
   (eventName: 'editUser', row: ITargetUser, type: 'record' | 'notify'): void
 }>()
 
@@ -96,5 +100,11 @@ const handleSelectionChange = (val: ITargetUser[]) => {
   const isEnableMultiEdit = val.length > 1
 
   emit('enableMultiEdit', { isEnableMultiEdit, usersSelected: val })
+}
+
+const onConfirm = (e: Event, row: ITargetUser) => {
+  emit('deleteUser', [row])
+
+  return true
 }
 </script>
