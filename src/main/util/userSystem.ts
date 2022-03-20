@@ -1,6 +1,7 @@
-import { ITargetUser } from '../types/user'
-import { IGetUsersResponse } from '../types/record'
+import { ipcMain } from 'electron'
 import ModelSystem from './modelSystem'
+import { IGetUsersResponse } from '../types/record'
+import { ITargetUser, ITargetUsers } from '../types/user'
 
 export type TInvalidEditKeyName =
   | 'login'
@@ -9,31 +10,31 @@ export type TInvalidEditKeyName =
   | 'offlineImg'
   | 'lastStreamTime'
 
+type UserID = string
+
 export default class UserSystem {
-  public static defaultTargetUser: ITargetUser = {
-    id: '',
-    login: '',
-    displayName: '',
-    profileImg: '',
-    offlineImg: '',
-    status: {
-      isOnline: false,
-      isRecording: false,
-    },
-    recordSetting: {
-      enableRecord: true,
-      enableNotify: true,
-      vodIsStopRecordStream: true,
-      vodGetStreamIfNoVod: true,
-      vodMode: 'countDown',
-      vodCountDownInMinutes: 60,
-      vodTimeZone: [3, 0, 0],
-      vodFileNameTemplate: '{channel}_TwitchVOD_{date}_{duration}',
-      recordType: ['stream', 'vod'],
-      checkStreamContentTypeEnable: true,
-      checkStreamContentTypeTargetGameNames: 'Art;Just Chatting;',
-      fileNameTemplate: '{channel}_TwitchLive_{date}',
-    },
+  public static fileName = 'targetUsers'
+
+  public static defaultTargetUsers: ITargetUsers = {
+    _comment: 'record setting for streamers',
+    targets: {},
+  }
+
+  public static defaultTargetUser(): ITargetUser {
+    const { recordSettingPrototype } = ModelSystem.configuration
+
+    return {
+      id: '',
+      login: '',
+      displayName: '',
+      profileImg: '',
+      offlineImg: '',
+      status: {
+        isOnline: false,
+        isRecording: false,
+      },
+      recordSetting: recordSettingPrototype,
+    }
   }
 
   /** @returns {boolean} is add user successfully */
@@ -46,7 +47,7 @@ export default class UserSystem {
       const newUsers = users.reduce((acc, user) => {
         if (targetUsers.targets[user.id] === undefined) {
           acc[user.id] = {
-            ...UserSystem.defaultTargetUser,
+            ...UserSystem.defaultTargetUser(),
             id: user.id,
             login: user.login,
             displayName: user.display_name,
@@ -118,5 +119,25 @@ export default class UserSystem {
 
       return false
     }
+  }
+
+  public static listener() {
+    ipcMain.handle(
+      'addTargetUsers',
+      (event, args: { data: IGetUsersResponse[] }) =>
+        UserSystem.addUser(args.data)
+    )
+
+    ipcMain.handle('getTargetUsers', () => ModelSystem.targetUsers)
+
+    ipcMain.handle(
+      'editTargetUsers',
+      async (event, args: ITargetUser[]) => await UserSystem.editUsers(args)
+    )
+
+    ipcMain.handle(
+      'deleteTargetUsers',
+      async (event, args: UserID[]) => await UserSystem.deleteUsers(args)
+    )
   }
 }

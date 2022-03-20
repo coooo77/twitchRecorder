@@ -1,13 +1,9 @@
 import { ipcMain } from 'electron'
 import AppProcess from './appProcess'
 import AuthProcess from './authProcess'
-import { ITargetUser } from './types/user'
-import AuthService from './util/authService'
-import ModelSystem from './util/modelSystem'
-import { IGetUsersResponse } from './types/record'
 import UserSystem from './util/userSystem'
-
-type UserID = string
+import AuthService from './util/authService'
+import ConfigSystem from './util/configSystem'
 
 export default class Communicate {
   appProcess: AppProcess
@@ -35,13 +31,9 @@ export default class Communicate {
 
     this.getAccessToken()
 
-    this.getTargetUsers()
+    UserSystem.listener()
 
-    this.addTargetUsers()
-
-    this.editTargetUsers()
-
-    this.deleteTargetUsers()
+    ConfigSystem.listener()
   }
 
   /**
@@ -68,31 +60,5 @@ export default class Communicate {
 
   private getAccessToken() {
     ipcMain.handle('getAccessToken', () => AuthService.accessToken)
-  }
-
-  private getTargetUsers() {
-    ipcMain.handle('getTargetUsers', () => ModelSystem.targetUsers)
-  }
-
-  private addTargetUsers() {
-    ipcMain.handle(
-      'addTargetUsers',
-      (event, args: { data: IGetUsersResponse[] }) =>
-        UserSystem.addUser(args.data)
-    )
-  }
-
-  private editTargetUsers() {
-    ipcMain.handle(
-      'editTargetUsers',
-      async (event, args: ITargetUser[]) => await UserSystem.editUsers(args)
-    )
-  }
-
-  private deleteTargetUsers() {
-    ipcMain.handle(
-      'deleteTargetUsers',
-      async (event, args: UserID[]) => await UserSystem.deleteUsers(args)
-    )
   }
 }
