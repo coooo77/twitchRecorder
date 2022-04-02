@@ -1,5 +1,5 @@
 <template>
-  <el-dialog width="90%" v-model="dialogVisible">
+  <el-dialog top="5vh" width="90%" v-model="dialogVisible">
     <div class="mainConfigs">
       <el-checkbox
         v-model="disableList.enableRecord"
@@ -65,7 +65,7 @@
       <el-checkbox
         v-model="disableList.vodTimeZone"
         label="Time Zone"
-        @change="removeTimezone"
+        @change="removeSetting($event, 'vodTimeZone')"
       />
 
       <el-checkbox
@@ -165,7 +165,7 @@
         label="time zone"
       >
         <el-time-picker
-          v-model="settingToUpdateTimeZone"
+          v-model="settingToUpdate.vodTimeZone"
           placeholder="time zone"
         />
       </el-form-item>
@@ -289,8 +289,6 @@ const showCheckStreamContentSetting = ref(false)
 
 const settingToUpdate = reactive<SettingToUpdate>({})
 
-const settingToUpdateTimeZone = ref<Date | undefined>()
-
 const booleanTypeSettings = [
   'enableRecord',
   'enableNotify',
@@ -311,30 +309,12 @@ const removeSetting = (
   }
 }
 
-const removeTimezone = (changeStatus: boolean) => {
-  if (!changeStatus) settingToUpdateTimeZone.value = undefined
-}
-
-// TODO: 因為組件的關係，timezone可能為undefined，要考慮其他可以穩定輸入的方式，或者特別做處理
-const getTimezoneSetting = () => {
-  if (!settingToUpdateTimeZone.value) return undefined
-
-  const targetTime = new Date(settingToUpdateTimeZone.value)
-
-  return [
-    targetTime.getHours(),
-    targetTime.getMinutes(),
-    targetTime.getSeconds(),
-  ] as [number, number, number]
-}
-
 const handleEditUsers = () => {
-  settingToUpdate.vodTimeZone = getTimezoneSetting()
-
   const keys = Object.keys(settingToUpdate) as (keyof typeof settingToUpdate)[]
 
   for (const key of keys) {
-    if (settingToUpdate[key] === undefined) delete settingToUpdate[key]
+    if (settingToUpdate[key] === undefined || settingToUpdate[key] === null)
+      delete settingToUpdate[key]
   }
 
   emit('update', settingToUpdate)

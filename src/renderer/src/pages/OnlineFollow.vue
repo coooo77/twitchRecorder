@@ -1,7 +1,7 @@
 <template>
   <div class="onlineFollow overflow-y-auto">
-    <header m="b-8" display="flex items-center">
-      <div class="multiEdit flex items-center mr-3">
+    <header m="b-8" display="flex items-center space-x-3">
+      <div class="multiEdit flex items-center">
         <el-button
           :disabled="!isMultiEdit"
           type="primary"
@@ -28,6 +28,14 @@
           <el-button @click="addUsers" :icon="Plus"></el-button>
         </template>
       </el-input>
+
+      <el-icon
+        class="cursor-pointer"
+        :size="24"
+        @click="recordSettingDialogVisible = true"
+      >
+        <Icon icon="ant-design:setting-outlined" />
+      </el-icon>
     </header>
 
     <!-- Table Data -->
@@ -53,6 +61,11 @@
       v-model:dialogVisible="multiEditDialogVisible"
       @update="handleMultiEdit"
     />
+
+    <record-setting-prototype-dialog
+      @update:modelValue="recordSettingDialogVisible = $event"
+      v-model:dialogVisible="recordSettingDialogVisible"
+    />
   </div>
 </template>
 
@@ -68,8 +81,8 @@ import { ElMessageBox, ElMessage } from 'element-plus'
 import { ITargetUser, ITargetUsers } from '../../../main/types/user'
 
 // components、interface
+import { Icon } from '@iconify/vue'
 import { SettingToUpdate } from '../components/OnlineFollow/MultiEditDialog'
-import MultiEditDialog from '../components/OnlineFollow/MultiEditDialog.vue'
 
 const usersToUpdate = ref<ITargetUser[]>([])
 
@@ -84,6 +97,8 @@ const input = ref('')
 const editDialogVisible = ref(false)
 
 const multiEditDialogVisible = ref(false)
+
+const recordSettingDialogVisible = ref(false)
 
 const dialogData = ref<ITargetUser | undefined>()
 
@@ -174,6 +189,8 @@ const handleMultiEdit = async (payload: SettingToUpdate) => {
   if (usersToUpdate.value.length === 0) return
 
   const updateData = usersToUpdate.value.map((user) => {
+    console.log('payload', payload)
+    console.log('user.recordSetting', user.recordSetting)
     user.recordSetting = Object.assign(user.recordSetting, payload)
 
     return JSON.parse(JSON.stringify(user)) as ITargetUser

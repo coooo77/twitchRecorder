@@ -1,6 +1,7 @@
 <template>
   <el-dialog
     v-if="editTarget"
+    top="5vh"
     width="90%"
     v-model="dialogVisible"
     @close="$emit('dialogClose')"
@@ -34,13 +35,13 @@
         <div class="onlineStatus text-lg mb-3 flex items-center gap-2">
           Online Status :
           <el-tag :type="editTarget.status.isOnline ? 'danger' : 'info'">{{
-            editTarget.status.isOnline ? "Online" : "Offline"
+            editTarget.status.isOnline ? 'Online' : 'Offline'
           }}</el-tag>
         </div>
         <div class="recordStatus text-lg mb-3 flex items-center gap-2">
           Record Status :
           <el-tag :type="editTarget.status.isRecording ? 'danger' : 'info'">{{
-            editTarget.status.isRecording ? "ON" : "OFF"
+            editTarget.status.isRecording ? 'ON' : 'OFF'
           }}</el-tag>
         </div>
         <div class="recordStatus text-lg mb-3">
@@ -48,7 +49,7 @@
           {{
             editTarget.status.streamStartedAt
               ? new Date(editTarget.status.streamStartedAt)
-              : "Unknown"
+              : 'Unknown'
           }}
         </div>
       </el-card>
@@ -119,30 +120,11 @@
             <template v-if="editTarget.recordSetting.vodMode === 'timeZone'">
               <div class="timeZone title">At</div>
               <div class="timeZoneInput">
-                <el-input-number
-                  v-model="editTarget.recordSetting.vodTimeZone[0]"
-                  :min="0"
-                  :max="23"
-                  size="small"
-                  m="r-2"
-                  controls-position="right"
-                />Hour
-                <el-input-number
-                  v-model="editTarget.recordSetting.vodTimeZone[1]"
-                  :min="0"
-                  :max="59"
-                  size="small"
-                  m="r-2"
-                  controls-position="right"
-                />Minutes
-                <el-input-number
-                  v-model="editTarget.recordSetting.vodTimeZone[2]"
-                  :min="0"
-                  :max="59"
-                  size="small"
-                  m="r-2"
-                  controls-position="right"
-                />Seconds
+                <el-time-picker
+                  v-model="editTarget.recordSetting.vodTimeZone"
+                  placeholder="time zone"
+                  :clearable="false"
+                />
               </div>
             </template>
 
@@ -187,38 +169,36 @@
 </template>
 
 <script setup lang="ts">
-import { ITargetUser } from "../../../../main/types/user";
+import { ITargetUser } from '../../../../main/types/user'
 
 const emit = defineEmits<{
-  (eventName: "dialogClose"): void;
-  (eventName: "confirmEdit", value: ITargetUser): void;
-  (eventName: "update:dialogVisible", value: boolean): void;
-}>();
+  (eventName: 'dialogClose'): void
+  (eventName: 'confirmEdit', value: ITargetUser): void
+  (eventName: 'update:dialogVisible', value: boolean): void
+}>()
 
 const props = defineProps<{
-  dialogVisible: boolean;
-  dialogData: ITargetUser | undefined;
-}>();
+  dialogVisible: boolean
+  dialogData: ITargetUser | undefined
+}>()
 
-const { dialogData } = toRefs(props);
+const { dialogData } = toRefs(props)
 
-const editTarget = computed(() => dialogData.value);
+const editTarget = computed(() => dialogData.value)
 
-const recordType = ["stream", "vod"];
+const recordType = ['stream', 'vod']
 
 const vodOption = [
-  { value: "queue", label: "Queue" },
-  { value: "manual", label: "Manual" },
-  { value: "offLine", label: "OffLine" },
-  { value: "timeZone", label: "Time Zone" },
-  { value: "countDown", label: "Count Down" },
-];
+  { value: 'queue', label: 'Queue' },
+  { value: 'manual', label: 'Manual' },
+  { value: 'offLine', label: 'OffLine' },
+  { value: 'timeZone', label: 'Time Zone' },
+  { value: 'countDown', label: 'Count Down' },
+]
 
 const confirmEdit = () => {
-  emit("update:dialogVisible", false);
+  emit('update:dialogVisible', false)
 
-  if (editTarget.value) emit("confirmEdit", editTarget.value);
-};
-
-const isEditCheckType = ref(false);
+  if (editTarget.value) emit('confirmEdit', editTarget.value)
+}
 </script>

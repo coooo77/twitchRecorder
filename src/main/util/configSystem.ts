@@ -11,14 +11,14 @@ import { IRecordSetting } from '../types/record'
 export default class ConfigSystem {
   public static fileName = 'configuration'
 
-  private static recordSettingPrototype: IRecordSetting = {
+  public static recordSettingPrototype: IRecordSetting = {
     enableRecord: true,
     enableNotify: true,
     vodIsStopRecordStream: true,
     vodGetStreamIfNoVod: true,
     vodMode: 'countDown',
     vodCountDownInMinutes: 60,
-    vodTimeZone: [3, 0, 0],
+    vodTimeZone: new Date(2022, 1, 10, 3, 0).toISOString(),
     vodFileNameTemplate: '{channel}_TwitchVOD_{date}_{duration}',
     recordType: ['stream', 'vod'],
     checkStreamContentTypeEnable: true,
@@ -26,21 +26,21 @@ export default class ConfigSystem {
     fileNameTemplate: '{channel}_TwitchLive_{date}',
   }
 
-  private static checkDiskSpaceAction: ICheckDiskSpaceAction = {
+  public static checkDiskSpaceAction: ICheckDiskSpaceAction = {
     isActive: true,
     unit: 'GB',
     number: 25,
     digit: 2,
   }
 
-  private static recordConfig: IRecordConfig = {
+  public static recordConfig: IRecordConfig = {
     checkStreamInterval: 1000 * 30,
     dirToSaveRecord: '',
     maxTryTimes: 5,
     numOfDownloadLimit: 10,
   }
 
-  private static processSetting: IProcessSetting = {
+  public static processSetting: IProcessSetting = {
     dirToProcessing: '',
     dirToProcessed: '',
     suffixMute: 'mute',
@@ -64,7 +64,13 @@ export default class ConfigSystem {
     ipcMain.handle('getUserConfig', () => ModelSystem.configuration)
 
     ipcMain.handle('editUserConfig', async (event, args: IUserConfig) => {
-      ModelSystem.configuration = args
+      try {
+        ModelSystem.configuration = args
+
+        return true
+      } catch {
+        return false
+      }
     })
   }
 }

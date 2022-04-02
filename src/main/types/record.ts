@@ -1,51 +1,63 @@
-export type IRecordType = "vod" | "stream";
+export type IRecordType = 'vod' | 'stream'
+
+export const recordTypeList = ['vod', 'stream'] as const
 
 export type IRecordMode =
-  | "queue"
-  | "manual"
-  | "offLine"
-  | "timeZone"
-  | "countDown";
+  | 'queue'
+  | 'manual'
+  | 'offLine'
+  | 'timeZone'
+  | 'countDown'
+
+export const recordModeList = [
+  { value: 'queue', label: 'Queue' },
+  { value: 'manual', label: 'Manual' },
+  { value: 'offLine', label: 'OffLine' },
+  { value: 'timeZone', label: 'Time Zone' },
+  { value: 'countDown', label: 'Count Down' },
+] as const
 
 export interface IUserStatus {
-  isOnline: boolean;
-  isRecording: boolean;
-  streamStartedAt?: string;
+  isOnline: boolean
+  isRecording: boolean
+  streamStartedAt?: string
 }
+
+export type DateStringType = string
 
 export interface IRecordSetting {
   /** enable record stream or vod */
-  enableRecord: boolean;
+  enableRecord: boolean
   /** enable online notify */
-  enableNotify: boolean;
+  enableNotify: boolean
   /** disable record stream while vod is available */
-  vodIsStopRecordStream: boolean;
+  vodIsStopRecordStream: boolean
   /** enable record stream while vod is not available */
-  vodGetStreamIfNoVod: boolean;
+  vodGetStreamIfNoVod: boolean
   /** queue、manual、offLine、timeZone、countDown */
-  vodMode: IRecordMode;
+  vodMode: IRecordMode
   /** setting for record mode - countDown */
-  vodCountDownInMinutes: number;
+  vodCountDownInMinutes: number
   /** [hour, minute, second] */
-  vodTimeZone: [number, number, number];
+  vodTimeZone: DateStringType
   /** e.g. {channel}-TwitchVOD-{date}-{duration} */
-  vodFileNameTemplate: string;
+  vodFileNameTemplate: string
   /** vod | stream */
-  recordType: IRecordType[];
+  recordType: IRecordType[]
   /** offline check */
-  offlineTimesToCheck?: number;
+  offlineTimesToCheck?: number
   /** record stream for explicit game names only */
-  checkStreamContentTypeEnable: boolean;
+  checkStreamContentTypeEnable: boolean
   /** e.g. Art;Just Chatting; */
-  checkStreamContentTypeTargetGameNames: string;
+  checkStreamContentTypeTargetGameNames: string
   /** e.g. {channel}-TwitchLive-{date} */
-  fileNameTemplate: string;
+  fileNameTemplate: string
 }
 
 export interface IGetUsersResponse {
-  id: string;
-  login: string;
-  display_name: string;
-  profile_image_url: string;
-  offline_image_url: string;
+  id: string
+  login: string
+  display_name: string
+  profile_image_url: string
+  offline_image_url: string
 }

@@ -33,6 +33,7 @@ declare module 'vue' {
     Layout: typeof import('./src/components/layout/index.vue')['default']
     Menu: typeof import('./src/components/layout/Menu.vue')['default']
     MultiEditDialog: typeof import('./src/components/OnlineFollow/MultiEditDialog.vue')['default']
+    RecordSettingPrototypeDialog: typeof import('./src/components/OnlineFollow/RecordSettingPrototypeDialog.vue')['default']
   }
 }
 
