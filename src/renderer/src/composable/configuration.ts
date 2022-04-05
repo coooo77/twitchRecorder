@@ -13,6 +13,8 @@ export function handleConfig() {
       if (!config) return Notify.warn('Fail to fetch user config')
 
       configuration.value = config
+
+      return config
     } catch (error) {
       console.error(error)
 
@@ -26,6 +28,8 @@ export function handleConfig() {
     const message = result ? 'success' : 'fail'
 
     Notify.send(`Edit config ${message}`, result)
+
+    return result
   }
 
   return {

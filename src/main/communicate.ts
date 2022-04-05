@@ -3,6 +3,7 @@ import AppProcess from './appProcess'
 import AuthProcess from './authProcess'
 import UserSystem from './util/userSystem'
 import AuthService from './util/authService'
+import MainProcessDialog from './util/dialog'
 import ConfigSystem from './util/configSystem'
 
 export default class Communicate {
@@ -34,6 +35,8 @@ export default class Communicate {
     UserSystem.listener()
 
     ConfigSystem.listener()
+
+    MainProcessDialog.listener()
   }
 
   /**
