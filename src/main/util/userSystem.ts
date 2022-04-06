@@ -21,7 +21,8 @@ export default class UserSystem {
   }
 
   public static defaultTargetUser(): ITargetUser {
-    const { recordSettingPrototype } = ModelSystem.configuration
+    const { recordSettingPrototype, videoProcessSettingPrototype } =
+      ModelSystem.configuration
 
     return {
       id: '',
@@ -34,6 +35,7 @@ export default class UserSystem {
         isRecording: false,
       },
       recordSetting: recordSettingPrototype,
+      videoProcessSetting: videoProcessSettingPrototype,
     }
   }
 

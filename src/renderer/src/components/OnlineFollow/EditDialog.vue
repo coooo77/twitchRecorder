@@ -55,105 +55,29 @@
       </el-card>
 
       <el-card class="config col-span-full">
-        <template #header>
-          <div class="title text-2xl mb-1">RECORD SETTING</div>
-        </template>
+        <el-collapse v-model="activeNames" accordion>
+          <el-collapse-item name="1">
+            <template #title>
+              <strong>RECORD SETTING</strong>
+            </template>
 
-        <div class="content">
-          <div class="recordFunction border-1 p-3 mb-2">
-            <div class="title flex items-center gap-2 mb-4"></div>
-            <div class="content grid grid-cols-[200px,1fr] gap-3 items-center">
-              <strong>Enable Record :</strong>
-              <el-switch v-model="editTarget.recordSetting.enableRecord" />
+            <el-form v-model="editTarget.recordSetting">
+              <RecordSetting v-model:recordSetting="editTarget.recordSetting" />
+            </el-form>
+          </el-collapse-item>
 
-              <div class="streamFileNameTemplate title">File Name :</div>
-              <el-input
-                v-model="editTarget.recordSetting.fileNameTemplate"
-                placeholder="Define your file name here"
+          <el-collapse-item name="2">
+            <template #title>
+              <strong>Process Setting</strong>
+            </template>
+
+            <el-form v-model="editTarget.videoProcessSetting">
+              <VideoProcessSetting
+                v-model:videoProcessSetting="editTarget.videoProcessSetting"
               />
-
-              <div class="recordType title">Record Type :</div>
-              <el-checkbox-group
-                size="small"
-                v-model="editTarget.recordSetting.recordType"
-              >
-                <el-checkbox-button
-                  v-for="item in recordType"
-                  :key="item"
-                  :label="item"
-                  >{{ item }}</el-checkbox-button
-                >
-              </el-checkbox-group>
-            </div>
-          </div>
-
-          <div
-            class="vodSetting border-1 p-3 mb-2 grid grid-cols-[200px,1fr] gap-3 items-center"
-          >
-            <strong>VOD Setting :</strong>
-            <el-select
-              v-model="editTarget.recordSetting.vodMode"
-              placeholder="Select"
-            >
-              <el-option
-                v-for="item in vodOption"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              ></el-option>
-            </el-select>
-
-            <template v-if="editTarget.recordSetting.vodMode === 'countDown'">
-              <div class="countDown title">Count down</div>
-              <div class="countDownInput">
-                <el-input-number
-                  v-model="editTarget.recordSetting.vodCountDownInMinutes"
-                  :min="1"
-                  :max="1440"
-                  size="small"
-                  m="r-2"
-                  controls-position="right"
-                />minutes
-              </div>
-            </template>
-
-            <template v-if="editTarget.recordSetting.vodMode === 'timeZone'">
-              <div class="timeZone title">At</div>
-              <div class="timeZoneInput">
-                <el-time-picker
-                  v-model="editTarget.recordSetting.vodTimeZone"
-                  placeholder="time zone"
-                  :clearable="false"
-                />
-              </div>
-            </template>
-
-            <div class="streamFileNameTemplate title">File Name :</div>
-            <el-input
-              v-model="editTarget.recordSetting.vodFileNameTemplate"
-              placeholder="Define your file name here"
-            />
-          </div>
-
-          <div
-            class="typeCheck border-1 p-3 mb-2 grid grid-cols-[200px,1fr] gap-3 items-center"
-          >
-            <strong>check stream type :</strong>
-            <el-switch
-              v-model="editTarget.recordSetting.checkStreamContentTypeEnable"
-            />
-
-            <div class="typeCheck title">Target Types :</div>
-
-            <el-input
-              v-model="
-                editTarget.recordSetting.checkStreamContentTypeTargetGameNames
-              "
-              type="textarea"
-              placeholder="Use semicolon to add game type"
-            />
-          </div>
-        </div>
+            </el-form>
+          </el-collapse-item>
+        </el-collapse>
       </el-card>
     </div>
 
@@ -170,6 +94,8 @@
 
 <script setup lang="ts">
 import { ITargetUser } from '../../../../main/types/user'
+import RecordSetting from '../Setting/RecordSetting.vue'
+import VideoProcessSetting from '../Setting/VideoProcessSetting.vue'
 
 const emit = defineEmits<{
   (eventName: 'dialogClose'): void
@@ -182,19 +108,11 @@ const props = defineProps<{
   dialogData: ITargetUser | undefined
 }>()
 
+const activeNames = ref(['1'])
+
 const { dialogData } = toRefs(props)
 
 const editTarget = computed(() => dialogData.value)
-
-const recordType = ['stream', 'vod']
-
-const vodOption = [
-  { value: 'queue', label: 'Queue' },
-  { value: 'manual', label: 'Manual' },
-  { value: 'offLine', label: 'OffLine' },
-  { value: 'timeZone', label: 'Time Zone' },
-  { value: 'countDown', label: 'Count Down' },
-]
 
 const confirmEdit = () => {
   emit('update:dialogVisible', false)

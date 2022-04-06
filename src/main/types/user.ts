@@ -1,3 +1,4 @@
+import { IVideoProcessSetting } from "./configuration";
 import { IRecordSetting, IUserStatus } from "./record";
 
 export interface ITargetUser {
@@ -9,6 +10,7 @@ export interface ITargetUser {
   status: IUserStatus
   lastStreamTime?: string
   recordSetting: IRecordSetting
+  videoProcessSetting: IVideoProcessSetting
 }
 
 export interface ITargetUsers {

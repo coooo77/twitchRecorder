@@ -105,8 +105,62 @@ export const integrityCheckUnits = [
   'percentage',
 ] as const
 
+/** screenshot @see https://github.com/fluent-ffmpeg/node-fluent-ffmpeg#screenshotsoptions-dirname-generate-thumbnails */
+export interface IVideoProcessSetting {
+  /** delete file after finish process */
+  deleteFile: boolean
+  /** enable mute videos */
+  mute: boolean
+  /** enable compress videos */
+  compress: boolean
+  /** enable combine videos */
+  combine: boolean
+  /**
+   * pattern to take videos as combine source if stream intervals is lower than this setting; unit:minutes
+   *
+   * Videos with same name will be taken as source when set it to 0
+   * */
+  intervalToCheckCombine: number
+  /** specify method to take screenshot */
+  screenshotType: 'count' | 'timestamp'
+  /** output folder for generated image files. Defaults to the current folder */
+  screenshotFolder: string
+  /** specifies how many thumbnails to generate */
+  screenshotCount: number
+  /** specifies an array of timestamps in the video where thumbnails should be taken */
+  screenshotTimestamps: (string | number)[]
+  /** specifies a target size for thumbnails; e.g. '320x240' */
+  screenshotSize: string
+}
+
+export const screenshotTypes: SelectorOption[] = [
+  {
+    value: 'count',
+    label: 'count',
+  },
+  {
+    value: 'timestamp',
+    label: 'timestamp',
+  },
+]
+
+export const screenshotTimestampTypes: SelectorOption[] = [
+  {
+    value: 'second',
+    label: 'second',
+  },
+  {
+    value: 'percentage',
+    label: 'percentage',
+  },
+  {
+    value: 'timestamp',
+    label: 'timestamp',
+  },
+]
+
 export interface IUserConfig {
-  /** prototype for streamer */
+  /** prototype record setting for streamer */
   recordSettingPrototype: IRecordSetting
   /** warning or stop record when volume is insufficient */
   checkDiskSpaceAction: ICheckDiskSpaceAction
@@ -116,4 +170,6 @@ export interface IUserConfig {
   processSetting: IProcessSetting
   /** define how to handle VOD */
   downloadVODSetting: IDownloadVODSetting
+  /** prototype video process setting for streamer */
+  videoProcessSettingPrototype: IVideoProcessSetting
 }

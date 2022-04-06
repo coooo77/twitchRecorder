@@ -3,8 +3,9 @@ import {
   IUserConfig,
   IRecordConfig,
   IProcessSetting,
-  ICheckDiskSpaceAction,
   IDownloadVODSetting,
+  IVideoProcessSetting,
+  ICheckDiskSpaceAction,
 } from '../types/configuration'
 import { ipcMain } from 'electron'
 import ModelSystem from './modelSystem'
@@ -65,12 +66,26 @@ export default class ConfigSystem {
     IntegrityCheckUnit: 'second',
   }
 
+  public static videoProcessSettingPrototype: IVideoProcessSetting = {
+    deleteFile: true,
+    mute: true,
+    compress: true,
+    combine: true,
+    intervalToCheckCombine: 30,
+    screenshotType: 'count',
+    screenshotFolder: '',
+    screenshotCount: 5,
+    screenshotTimestamps: [],
+    screenshotSize: '',
+  }
+
   public static defaultConfig: IUserConfig = {
     recordConfig: ConfigSystem.recordConfig,
     processSetting: ConfigSystem.processSetting,
     downloadVODSetting: ConfigSystem.downloadVODSetting,
     checkDiskSpaceAction: ConfigSystem.checkDiskSpaceAction,
     recordSettingPrototype: ConfigSystem.recordSettingPrototype,
+    videoProcessSettingPrototype: ConfigSystem.videoProcessSettingPrototype,
   }
 
   public static listener() {
@@ -88,6 +103,7 @@ export default class ConfigSystem {
 
     ipcMain.handle('importConfig', (event, pathOfConfig: string) => {
       try {
+        // TODO: data validation
         const rawData = fs.readFileSync(pathOfConfig).toString()
 
         ModelSystem.configuration = JSON.parse(rawData)

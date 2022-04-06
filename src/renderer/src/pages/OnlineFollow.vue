@@ -1,6 +1,7 @@
 <template>
   <div class="onlineFollow overflow-y-auto">
     <header m="b-8" display="flex items-center space-x-3">
+      <!-- TODO: export import users -->
       <div class="multiEdit flex items-center">
         <el-button
           :disabled="!isMultiEdit"
@@ -76,13 +77,16 @@ import {
   TwitchGetUsersParams,
 } from '../util/twitchAPI_renderer'
 import Notify from '../util/notify'
+import { Icon } from '@iconify/vue'
 import { Plus } from '@element-plus/icons-vue'
 import { ElMessageBox, ElMessage } from 'element-plus'
 import { ITargetUser, ITargetUsers } from '../../../main/types/user'
 
 // components、interface
-import { Icon } from '@iconify/vue'
-import { SettingToUpdate } from '../components/OnlineFollow/MultiEditDialog'
+import {
+  SettingToUpdate,
+  VideoProcessSettingToUpDate,
+} from '../components/OnlineFollow/MultiEditDialog'
 
 const usersToUpdate = ref<ITargetUser[]>([])
 
@@ -185,13 +189,16 @@ const handleMultiEditStatus = (payload: {
   usersToUpdate.value = payload.usersSelected
 }
 
-const handleMultiEdit = async (payload: SettingToUpdate) => {
+const handleMultiEdit = async (
+  value1: SettingToUpdate,
+  value2: VideoProcessSettingToUpDate
+) => {
   if (usersToUpdate.value.length === 0) return
 
   const updateData = usersToUpdate.value.map((user) => {
-    console.log('payload', payload)
-    console.log('user.recordSetting', user.recordSetting)
-    user.recordSetting = Object.assign(user.recordSetting, payload)
+    user.recordSetting = Object.assign(user.recordSetting, value1)
+
+    user.videoProcessSetting = Object.assign(user.videoProcessSetting, value2)
 
     return JSON.parse(JSON.stringify(user)) as ITargetUser
   })

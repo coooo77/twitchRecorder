@@ -16,114 +16,18 @@
       <el-collapse v-model="activeNames" accordion>
         <!-- recordSettingPrototype -->
         <el-collapse-item title="Record Setting Prototype" name="1">
-          <el-divider><strong> General Setting </strong></el-divider>
-          <el-form-item label="Enable Record">
-            <el-switch v-model="form.recordSettingPrototype.enableRecord" />
-          </el-form-item>
+          <RecordSetting v-model:recordSetting="form.recordSettingPrototype" />
+        </el-collapse-item>
 
-          <el-form-item label="Enable Notify">
-            <el-switch v-model="form.recordSettingPrototype.enableNotify" />
-          </el-form-item>
-
-          <el-form-item label="stream File Name">
-            <el-input
-              v-model="form.recordSettingPrototype.fileNameTemplate"
-              placeholder="Define your file name here"
-            />
-          </el-form-item>
-
-          <el-form-item label="Record Type">
-            <el-checkbox-group
-              size="small"
-              v-model="form.recordSettingPrototype.recordType"
-            >
-              <el-checkbox-button
-                v-for="item in recordTypeList"
-                :key="item"
-                :label="item"
-              >
-                {{ item }}
-              </el-checkbox-button>
-            </el-checkbox-group>
-          </el-form-item>
-
-          <el-divider><strong> VOD Setting </strong></el-divider>
-
-          <el-form-item label="Is Stop Record Stream">
-            <el-switch
-              v-model="form.recordSettingPrototype.vodIsStopRecordStream"
-            />
-          </el-form-item>
-
-          <el-form-item label="Get Stream If No Vod">
-            <el-switch
-              v-model="form.recordSettingPrototype.vodGetStreamIfNoVod"
-            />
-          </el-form-item>
-
-          <el-form-item label="VOD mode">
-            <el-select
-              v-model="form.recordSettingPrototype.vodMode"
-              placeholder="Select VOD mode"
-            >
-              <el-option
-                v-for="item in recordModeList"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              ></el-option>
-            </el-select>
-          </el-form-item>
-
-          <el-form-item label="VOD countdown">
-            <el-input-number
-              v-model="form.recordSettingPrototype.vodCountDownInMinutes"
-              :min="1"
-              :max="1440"
-              size="small"
-              class="mr-2"
-              controls-position="right"
-            />
-            minutes
-          </el-form-item>
-
-          <el-form-item label="VOD time zone">
-            <el-time-picker
-              v-model="form.recordSettingPrototype.vodTimeZone"
-              placeholder="time zone"
-              :clearable="false"
-            />
-          </el-form-item>
-
-          <el-form-item label="VOD File Name">
-            <el-input
-              v-model="form.recordSettingPrototype.vodFileNameTemplate"
-              placeholder="Define your file name here"
-            />
-          </el-form-item>
-
-          <el-divider><strong> Check Stream Content </strong></el-divider>
-
-          <el-form-item label="Enable Check Stream Content Type">
-            <el-switch
-              v-model="form.recordSettingPrototype.checkStreamContentTypeEnable"
-            />
-          </el-form-item>
-
-          <el-form-item label="check Stream Content Type Target Game Names">
-            <el-input
-              v-model="
-                form.recordSettingPrototype
-                  .checkStreamContentTypeTargetGameNames
-              "
-              type="textarea"
-              placeholder="Use semicolon to add game type"
-            />
-          </el-form-item>
+        <!-- videoProcessSettingPrototype -->
+        <el-collapse-item title="Process Setting Prototype" name="2">
+          <VideoProcessSetting
+            v-model:videoProcessSetting="form.videoProcessSettingPrototype"
+          />
         </el-collapse-item>
 
         <!-- checkDiskSpaceAction -->
-        <el-collapse-item title="Check Disk Space Action" name="2">
+        <el-collapse-item title="Check Disk Space Action" name="3">
           <div class="result m-5">
             <el-card class="grid place-items-center">
               {{ checkDiskSpaceInfo }}
@@ -169,7 +73,7 @@
         </el-collapse-item>
 
         <!-- recordConfig -->
-        <el-collapse-item title="Record Config" name="3">
+        <el-collapse-item title="Record Config" name="4">
           <el-form-item label="Directory to Save Record">
             <div class="layout space-x-2 w-full flex flex-nowrap">
               <el-input
@@ -177,7 +81,7 @@
                 v-model="form.recordConfig.dirToSaveRecord"
                 placeholder="No directory available"
               />
-              <el-button @click="getDirPath('dirToSaveRecord')"
+              <el-button @click="setDirPath('dirToSaveRecord')"
                 >Add Path</el-button
               >
             </div>
@@ -221,7 +125,7 @@
         </el-collapse-item>
 
         <!-- processSetting -->
-        <el-collapse-item title="Download VOD Setting" name="4">
+        <el-collapse-item title="Download VOD Setting" name="5">
           <div class="result m-5">
             <el-card class="grid place-items-center">
               {{ checkVODIntegrityInfo }}
@@ -274,8 +178,8 @@
           </el-form-item>
         </el-collapse-item>
 
-        <!-- downloadVODSetting -->
-        <el-collapse-item title="Process Setting" name="5">
+        <!-- processSetting -->
+        <el-collapse-item title="Process Setting" name="6">
           <el-form-item label="Enable Process Videos">
             <el-switch v-model="form.processSetting.enable" />
           </el-form-item>
@@ -287,7 +191,7 @@
                 v-model="form.processSetting.dirToProcessing"
                 placeholder="No directory available"
               />
-              <el-button @click="getDirPath('dirToProcessing')"
+              <el-button @click="setDirPath('dirToProcessing')"
                 >Add Path</el-button
               >
             </div>
@@ -300,7 +204,7 @@
                 v-model="form.processSetting.dirToProcessed"
                 placeholder="No directory available"
               />
-              <el-button @click="getDirPath('dirToProcessed')"
+              <el-button @click="setDirPath('dirToProcessed')"
                 >Add Path</el-button
               >
             </div>
@@ -313,7 +217,7 @@
                 v-model="form.processSetting.ffmpegPath"
                 placeholder="path of ffmpeg has not set"
               />
-              <el-button @click="getFilePath('ffmpegPath')">Add Path</el-button>
+              <el-button @click="setFilePath('ffmpegPath')">Add Path</el-button>
             </div>
           </el-form-item>
 
@@ -324,7 +228,7 @@
                 v-model="form.processSetting.probePath"
                 placeholder="path of ffprobe has not set"
               />
-              <el-button @click="getFilePath('probePath')">Add Path</el-button>
+              <el-button @click="setFilePath('probePath')">Add Path</el-button>
             </div>
           </el-form-item>
 
@@ -389,167 +293,72 @@
 
 <script lang="ts" setup>
 import {
-  IUserConfig,
   checkDiskUnits,
   processMethods,
   programsToRecord,
   integrityCheckUnits,
 } from '../../../main/types/configuration'
-import { handleConfig } from '../composable/configuration'
-import { recordTypeList, recordModeList } from '../../../main/types/record'
-import Notify from '../util/notify'
+import { labelWidth } from '../util/common'
+import { handleSetting } from '../composable/setting'
 
-const { configuration, getConfiguration, editConfiguration } = handleConfig()
+import RecordSetting from '../components/Setting/RecordSetting.vue'
+import VideoProcessSetting from '../components/Setting/VideoProcessSetting.vue'
 
-const labelWidth = '200px'
+const {
+  form,
+  isFormChanged,
+  checkDiskSpaceInfo,
+  checkVODIntegrityInfo,
+  getDirPath,
+  getFilePath,
+  setDefault,
+  saveConfig,
+  importConfig,
+  exportConfig,
+} = handleSetting()
 
 const activeNames = ref([])
 
-const isFormChanged = ref(false)
-
-const form = ref<IUserConfig>()
-
-const checkDiskSpaceInfo = computed(() => {
-  if (!form.value) return 'No limit'
-
-  const { unit, number, isActive } = form.value.checkDiskSpaceAction
-
-  if (number === 0 || !isActive) return 'No limit'
-
-  return `Stop record when disk space is lower than ${number} ${unit}`
-})
-
-const checkVODIntegrityInfo = computed(() => {
-  if (!form.value) return 'No limit'
-
-  const { LossOfVODDurationAllowed, IntegrityCheck, IntegrityCheckUnit } =
-    form.value.downloadVODSetting
-
-  if (!IntegrityCheck || LossOfVODDurationAllowed === 0) return 'No limit'
-
-  return `Download VOD again when loss ${LossOfVODDurationAllowed} ${IntegrityCheckUnit} of duration`
-})
-
-watch(
-  form,
-  (newVal, oldVal) => {
-    if (oldVal === undefined) return
-
-    isFormChanged.value = true
-  },
-  { deep: true }
-)
-
-const fetchConfig = async () => {
-  const config = await getConfiguration()
-
-  if (config) form.value = config
-}
-
-const getDirPath = async (
-  key: 'dirToSaveRecord' | 'dirToProcessing' | 'dirToProcessed'
+const setDirPath = async (
+  key:
+    | 'dirToSaveRecord'
+    | 'dirToProcessing'
+    | 'dirToProcessed'
+    | 'screenshotFolder'
 ) => {
   if (!form.value) return
 
-  const res = (await window.ipcRenderer.invoke('showOpenDialog', {
-    properties: ['openDirectory'],
-  })) as string[] | undefined
+  const res = await getDirPath()
 
   if (!res) return
 
   switch (key) {
     case 'dirToSaveRecord':
-      form.value.recordConfig.dirToSaveRecord = res[0]
+      form.value.recordConfig.dirToSaveRecord = res
       break
     case 'dirToProcessing':
-      form.value.processSetting.dirToProcessing = res[0]
+      form.value.processSetting.dirToProcessing = res
       break
     case 'dirToProcessed':
-      form.value.processSetting.dirToProcessed = res[0]
+      form.value.processSetting.dirToProcessed = res
+      break
+    case 'screenshotFolder':
+      form.value.videoProcessSettingPrototype.screenshotFolder = res
       break
     default:
       break
   }
 }
 
-// TODO: validation check
-const getFilePath = async (key: 'ffmpegPath' | 'probePath') => {
+const setFilePath = async (key: 'ffmpegPath' | 'probePath') => {
   if (!form.value) return
 
-  const res = (await window.ipcRenderer.invoke('showOpenDialog', {
-    filters: [
-      { name: 'Exe Files', extensions: ['exe'] },
-      { name: 'All Files', extensions: ['*'] },
-    ],
-    properties: ['openFile'],
-  })) as string[] | undefined
+  const res = await getFilePath()
 
   if (!res) return
 
-  form.value.processSetting[key] = res[0]
+  form.value.processSetting[key] = res
 }
-
-const saveConfig = async () => {
-  if (!form.value) return
-
-  const res = await editConfiguration(JSON.parse(JSON.stringify(form.value)))
-
-  if(res) isFormChanged.value = false
-}
-
-const importConfig = async () => {
-  const importPath = (await window.ipcRenderer.invoke('showOpenDialog', {
-    filters: [
-      { name: 'JSON Files', extensions: ['json'] },
-      { name: 'All Files', extensions: ['*'] },
-    ],
-    properties: ['openFile'],
-  })) as string[] | undefined
-
-  if (!importPath) return
-
-  const res = await window.ipcRenderer.invoke('importConfig', importPath[0])
-
-  const message = res ? 'success' : 'fail'
-
-  Notify.send(`Import config ${message}`, res)
-
-  if (res) await fetchConfig()
-}
-
-const exportConfig = async () => {
-  if (!form.value) return
-
-  const exportPath = (await window.ipcRenderer.invoke('showSaveDialog', {
-    title: 'Export Config',
-    defaultPath: 'config',
-    filters: [
-      { name: 'JSON Files', extensions: ['json'] },
-      { name: 'All Files', extensions: ['*'] },
-    ],
-  })) as string | undefined
-
-  if (!exportPath) return
-
-  const res = await window.ipcRenderer.invoke('exportConfig', exportPath)
-
-  const message = res ? 'success' : 'fail'
-
-  Notify.send(`Edit config ${message}`, res)
-}
-
-// TODO: Dialog確認
-const setDefault = async () => {
-  const res = await window.ipcRenderer.invoke('setDefault')
-
-  const message = res ? 'Default config is set' : 'Fail to set Config'
-
-  Notify.send(message, res)
-
-  if (res) await fetchConfig()
-}
-
-onMounted(fetchConfig)
 </script>
 
 <style scoped>
